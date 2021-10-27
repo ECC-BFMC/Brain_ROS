@@ -15,10 +15,17 @@
 namespace message{
 
     //enum for defining the actions that can be performed 
-    //NON - non-valid 
-    typedef enum {SPED, STER, BRAK, PIDA, ENPB, PIDS, NONV}Actions;
+    // 1 - SPEED Command
+    // 2 - STEERING Command
+    // 3 - BRAKE Command
+    // 4 - PID ACTIVATION Command
+    // 5 - ENCODER PUBLISHER Command
+    // 6 - PID TUNNING Command
+    // 7 - NO Command
+
+    typedef enum {1, 2, 3, 4, 5, 6, 7}Actions;
     //the strings associated to each action
-    static std::string ActionStrings[] = { "SPED", "STER", "BRAK" , "PIDA" , "ENPB" , "PIDS", "NONV"};
+    static std::string ActionStrings[] = { "1", "2", "3" , "4" , "5" , "6", "7"};
 
     std::string getTextForKey(int);
     std::string speed(float);
