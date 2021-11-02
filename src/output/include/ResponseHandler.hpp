@@ -35,8 +35,8 @@ class ResponseHandler:public BaseResponseHandler{
         void operator()(const char*,const size_t);
         void _run();
 
-        void attach(message::Actions,CallbackFncPtrType);
-        void detach(message::Actions,CallbackFncPtrType);
+        void attach(std::string,CallbackFncPtrType);
+        void detach(std::string,CallbackFncPtrType);
         
     private:
         void processChr(const char);
@@ -46,7 +46,7 @@ class ResponseHandler:public BaseResponseHandler{
         std::deque<char> read_msgs_;  //buffered read data
         bool             m_isResponse;//is true, when receiving a response valid from the device 
         std::deque<char> m_valid_response;//buffer the valid response
-        std::map<message::Actions,CallbackFncContainer>  m_keyCallbackFncMap;
+        std::map<std::string,CallbackFncContainer>  m_keyCallbackFncMap;
 
         
 };

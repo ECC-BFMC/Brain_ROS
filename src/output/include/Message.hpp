@@ -23,7 +23,6 @@ namespace message{
     // 6 - PID TUNNING Command
     // 7 - NO Command
 
-    typedef enum {1, 2, 3, 4, 5, 6, 7}Actions;
     //the strings associated to each action
     static std::string ActionStrings[] = { "1", "2", "3" , "4" , "5" , "6", "7"};
 
@@ -34,10 +33,6 @@ namespace message{
     std::string pida(bool);
     std::string enpb(bool);
     std::string pids(float,float,float,float);
-    
-    
-
-    Actions     text2Key(std::string);
 };
 
 #endif

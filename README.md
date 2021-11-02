@@ -79,10 +79,15 @@ rosdep install -y --from-paths src --ignore-src --rosdistro noetic -r --os=debia
 
 ## 12. Compile ROS packages
 Since the ROS project is resource consuming, it is also recommended, but not mandatory, to increase the swap memory to 1 GB. You can decrease it afterwards. By following the same steps and setting it back to 100
+
 		sudo dphys-swapfile swapoff
+
 		sudoedit /etc/dphys-swapfile
+
 			CONF_SWAPSIZE=1024
+
 		sudo dphys-swapfile setup
+
 		sudo dphys-swapfile swapon
 
 sudo src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/noetic -j1 -DPYTHON_EXECUTABLE=/usr/bin/python3
@@ -90,6 +95,7 @@ sudo src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --
 
 ## 13. Verify installation
 source /opt/ros/noetic/setup.bash
+
 roscore
 
 ## 14. You can also set the sourcing at the startup of each new terminal.
@@ -102,6 +108,7 @@ sudo apt install libatlas-base-dev
 
 ## 17. Install python dependencies
 pip3 install -r requirements_rpi.txt
+
 pip3 install numpy --upgrade
 
 ## 18. Set up the i2c communication for the IMU by following the Setting up the Raspberry Pi side from this tutorial: 
@@ -112,22 +119,37 @@ http://wiki.ros.org/ROSberryPi/
 
 ## 20. Build and run the prepared project
 catkin_make
+
 source devel/setup.bash
+
 roslaunch utils run_automobile_remote.launch
+
 It will run the same brain project only in ROS variant. If you want to test it remotely you can run the remotecontroltransmitter and camerareceiver from the startup project (don’t forget to edit the IP’s from CameraTransmitterProcess on rpi and the remotecontroltransmitterProcess from the remote).
 
 
 ## 21. If you wish to install additional ROS packages after the installation, you will have to:
 cd ~/ros_catkin_ws
-sudo rm -rf build_isolated/ devel_isolated/ and src
+
+sudo rm -rf build_isolated/ devel_isolated/ src/
+
 sudo apt-get install -y python-rosdep python-rosinstall-generator python-wstool python-rosinstall build-essential cmake
+
 rosinstall_generator name_of_new_pkg --deps --exclude RPP > new_pkg.rosisntall
+
 wstool init src new_pkg.rosisntall
+
 sudo -s
+
 nano /root/.bashrc
+
 	add source /opt/ros/noetic/setup.bash
+
 source /root/.bashrc
+
 catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release  --install-space /opt/ros/noetic
+
 nano /root/.bashrc
+
 	remove source /opt/ros/noetic/setup.bash
+
 exit

@@ -36,12 +36,12 @@ serialHandlerNode_CPP::serialHandlerNode_CPP(SerialComManager& f_comManager, Res
 {}
 
 serialHandlerNode_CPP::~serialHandlerNode_CPP(){	
-	m_responseHandler.detach(message::STER, m_callbackFncObj);
-	m_responseHandler.detach(message::SPED, m_callbackFncObj);
-	m_responseHandler.detach(message::BRAK, m_callbackFncObj);
-	m_responseHandler.detach(message::PIDA, m_callbackFncObj);
-	m_responseHandler.detach(message::ENPB, m_callbackFncObj);
-	m_responseHandler.detach(message::PIDS, m_callbackFncObj);
+	m_responseHandler.detach(std::string("1"), m_callbackFncObj);
+	m_responseHandler.detach(std::string("2"), m_callbackFncObj);
+	m_responseHandler.detach(std::string("3"), m_callbackFncObj);
+	m_responseHandler.detach(std::string("4"), m_callbackFncObj);
+	m_responseHandler.detach(std::string("5"), m_callbackFncObj);
+	m_responseHandler.detach(std::string("6"), m_callbackFncObj);
 	
 	delete m_callbackFncObj;
 	// Close all threads
@@ -57,12 +57,12 @@ void serialHandlerNode_CPP::init(ros::NodeHandle* nh) {
 	m_callbackFncObj = ResponseHandler::createCallbackFncPtr(&serialHandlerNode_CPP::print, this);
 	
 	// Attach the callback function to the following messages.
-	m_responseHandler.attach(message::STER, m_callbackFncObj);
-	m_responseHandler.attach(message::SPED, m_callbackFncObj);
-	m_responseHandler.attach(message::BRAK, m_callbackFncObj);
-	m_responseHandler.attach(message::PIDA, m_callbackFncObj);
-	m_responseHandler.attach(message::ENPB, m_callbackFncObj);
-	m_responseHandler.attach(message::PIDS, m_callbackFncObj);
+	m_responseHandler.attach(std::string("1"), m_callbackFncObj);
+	m_responseHandler.attach(std::string("2"), m_callbackFncObj);
+	m_responseHandler.attach(std::string("3"), m_callbackFncObj);
+	m_responseHandler.attach(std::string("4"), m_callbackFncObj);
+	m_responseHandler.attach(std::string("5"), m_callbackFncObj);
+	m_responseHandler.attach(std::string("6"), m_callbackFncObj);
 	
 	Subscribing = nh->subscribe("/automobile/command", 1, &serialHandlerNode_CPP::funcCallback, this);
 }
@@ -73,42 +73,42 @@ void serialHandlerNode_CPP::funcCallback(const std_msgs::String::ConstPtr& msg){
 	doc.Parse(c);
 	if (doc.HasMember("action")) { 
 		std::string command = doc["action"].GetString();
-		if(command =="SPED") {
+		if(command =="1") {
 			if (doc.HasMember("speed")){ 
 				m_comManager.sendSpeed(doc["speed"].GetFloat());
 			}
 			else { 
 				ROS_INFO_STREAM("Invalid message"); 
 			}
-		} else if (command =="STER") {
+		} else if (command =="2") {
 			if (doc.HasMember("steerAngle")){ 
 				m_comManager.sendSteer(doc["steerAngle"].GetFloat());
 			}
 			else {
 				ROS_INFO_STREAM("Invalid message"); 
 			}
-		} else if (command =="BRAK") {
+		} else if (command =="3") {
 			if (doc.HasMember("steerAngle")){ 
 				m_comManager.sendBrake(doc["steerAngle"].GetFloat());
 			}
 			else { 
 				ROS_INFO_STREAM("Invalid message");
 			}
-		} else if (command =="PIDA") {
+		} else if (command =="4") {
 			if (doc.HasMember("activate")){ 
 				m_comManager.sendPidState(doc["activate"].GetBool());
 			}
 			else { 
 				ROS_INFO_STREAM("Invalid message");
 			}
-		} else if (command =="ENPB") {
+		} else if (command =="5") {
 			if (doc.HasMember("activate")){ 
 				m_comManager.sendEncoderPublisher(doc["activate"].GetBool());
 			}
 			else { 
 				ROS_INFO_STREAM("Invalid message");
 			}
-		} else if (command =="PIDS") {
+		} else if (command =="6") {
 			if (doc.HasMember("kp"), doc.HasMember("ki"), doc.HasMember("kd"), doc.HasMember("tf")){ 
 				m_comManager.sendPidParam(doc["kp"].GetFloat(), doc["ki"].GetFloat(), doc["kd"].GetFloat(), doc["tf"].GetFloat());
 			}

@@ -41,7 +41,7 @@ class serialDealerNODE():
         
         rospy.init_node('serialDealerNODE', anonymous=False)
         
-        # Image publisher object
+        # Command publisher object
         self.command_publisher = rospy.Publisher("/automobile/command", String, queue_size=1)
         
     

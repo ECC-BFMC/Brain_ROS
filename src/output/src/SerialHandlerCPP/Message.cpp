@@ -196,13 +196,3 @@ std::string message::pids(float kp,float ki,float kd,float tf){
     strs<<"#"<<getTextForKey(5)<<":"<<buff;
     return strs.str();
 }
-
-message::Actions message::text2Key(const std::string f_keyStr){
-    unsigned int length=static_cast<unsigned int>(sizeof(ActionStrings)/sizeof(ActionStrings[0]));
-    for (unsigned int i=0; i<length ;++i){
-        if(f_keyStr.compare(ActionStrings[i])==0){
-            return static_cast<message::Actions>(i);
-        }
-    }
-    return NONV;
-}

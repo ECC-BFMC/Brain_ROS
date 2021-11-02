@@ -116,7 +116,7 @@ ResponseHandler::CallbackFncPtrType ResponseHandler::createCallbackFncPtr(void (
  *     l_responseHandler.attach(message::KEY,l_callbackFncObj)
  * @endcode
  */
-void ResponseHandler::attach(message::Actions f_action,CallbackFncPtrType waiter){
+void ResponseHandler::attach(std::string f_action,CallbackFncPtrType waiter){
     if(m_keyCallbackFncMap.count(f_action)>0){
         CallbackFncContainer* l_container=&(m_keyCallbackFncMap[f_action]);
         l_container->push_back(waiter);
@@ -139,7 +139,7 @@ void ResponseHandler::attach(message::Actions f_action,CallbackFncPtrType waiter
  *      l_responseHandler.attach(message::KEY,l_callbackFncObj)
  * @endcode
  */
-void ResponseHandler::detach(message::Actions f_action,CallbackFncPtrType waiter){
+void ResponseHandler::detach(std::string f_action,CallbackFncPtrType waiter){
     if(m_keyCallbackFncMap.count(f_action)>0){
         CallbackFncContainer *l_container=(&m_keyCallbackFncMap[f_action]);
         CallbackFncContainer::iterator it=std::find(l_container->begin(),l_container->end(),waiter);
@@ -186,15 +186,14 @@ void ResponseHandler::processChr(const char f_received_chr){
 }
 
  /*  
- * Response example: "@KEY1:RESPONSECONTANT;;\r\n"
+ * Response example: "@1:RESPONSECONTANT;;\r\n"
  */
 void ResponseHandler::checkResponse(){
     std::string l_responseFull(m_valid_response.begin(),m_valid_response.end());
-    std::string l_keyStr=l_responseFull.substr(1,4);
-    std::string l_reponseStr=l_responseFull.substr(6,l_responseFull.length()-8);
-    message::Actions l_key=message::text2Key(l_keyStr);
-    if(m_keyCallbackFncMap.count(l_key)>0){
-        CallbackFncContainer l_cointaner=m_keyCallbackFncMap[l_key];
+    std::string l_keyStr=l_responseFull.substr(1,1);
+    std::string l_reponseStr=l_responseFull.substr(3,l_responseFull.length()-5);
+    if(std::stoi(l_keyStr)>0){
+        CallbackFncContainer l_cointaner=m_keyCallbackFncMap[l_keyStr];
         for(CallbackFncContainer::iterator it=l_cointaner.begin();it!=l_cointaner.end();++it){
             (**it)(l_reponseStr);
         }
