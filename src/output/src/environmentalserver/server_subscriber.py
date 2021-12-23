@@ -54,9 +54,9 @@ class ServerSubscriber:
 		#: openssl genrsa -out privateckey_client.pem 2048 ----> Creates a private ssh key and stores it in the current dir with the given name
 		#: openssl rsa -in privatekey_server.pem -pubout -out publickey_server.pem ----> Creates the corresponding public key out of the private one
 		#: self.__public_key = load_public_key('publickey_server.pem')
-		self.__public_key = load_public_key('/home/pi/automobile/src/output/src/environmentalserver/publickey_server_test.pem')
+		self.__public_key = load_public_key('/home/pi/BFMC/Brain_ROS/src/output/src/environmentalserver/publickey_server_test.pem')
 		#: self.__private_key = load_private_key('privateckey_client.pem')
-		self.__private_key = load_private_key('/home/pi/automobile/src/output/src/environmentalserver/privatekey_client_test.pem')
+		self.__private_key = load_private_key('/home/pi/BFMC/Brain_ROS/src/output/src/environmentalserver/privatekey_client_test.pem')
 
 	def ID(self):
 		return self.__carId
