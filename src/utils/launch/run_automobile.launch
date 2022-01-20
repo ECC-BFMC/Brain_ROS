@@ -7,4 +7,5 @@
 
     <node pkg="output" type="serialNODE.py" 			name="serialNODE"  				output="screen"/>
     <node pkg="output" type="environmentalNODE.py" 		name="environmentalNODE"  		output="screen"/> 
+	<node pkg="perception" type="laneNODE.py"	name="laneNODE" output="screen"/>
 </launch>

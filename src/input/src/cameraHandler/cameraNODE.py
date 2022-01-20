@@ -89,9 +89,9 @@ class cameraNODE():
         self.camera = PiCamera()
         # camera settings
         self.camera.resolution      =   (1640,1232)
-        self.camera.framerate       =   15
+        self.camera.framerate       =   24
 
-        self.camera.brightness      =   50
+        self.camera.brightness      =   60
         self.camera.shutter_speed   =   1200
         self.camera.contrast        =   0
         self.camera.iso             =   0 # auto
