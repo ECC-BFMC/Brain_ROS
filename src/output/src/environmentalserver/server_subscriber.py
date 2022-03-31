@@ -1,4 +1,3 @@
-
 # Copyright (c) 2019, Bosch Engineering Center Cluj and BFMC organizers
 # All rights reserved.
 
@@ -34,7 +33,7 @@ sys.path.insert(0,'.')
 
 import socket
 
-from util import load_public_key, load_private_key, verify_data, sign_data
+from utils import load_public_key, load_private_key, verify_data, sign_data
 
 class ServerSubscriber:
 	""" It has role to subscribe on the server, to create a connection and verify the server authentication.
@@ -42,21 +41,27 @@ class ServerSubscriber:
 	of robot and receives two message to authorize the server. For authentication it bases on the public key of server. This 
 	key is stored in 'publickey.pem' file.
 	"""
-	def __init__(self, server_data, carId):
+	def __init__(self, server_data, carId, serverpublickey, clientprivatekey):
 		#: id number of the robot
 		self.__carId = carId
 		#: object with server parameters
 		self.__server_data = server_data
 		#: public key of the server for authentication
 		#: For testing purposes, with the provided simulated env_info_system, use the "publickey_server_test.pem" and the "privatekey_client_test.pem"
-		#: At Bosch location, during the competition and during the testing on the track, please use the "publickey_server.pem" and 
-		#: Your own created private key. Before the competition, instruction of where to send your public key will be given.
+
+		#: At Bosch location, during the competition and during the testing on the track, use the "publickey_server.pem" instead of the "publickey_server_test.pem" 
+		#: and your own created private key instead of the "privatekey_client_test.pem". The instructions on how to generate your own privatekey are listed below:
+	
 		#: openssl genrsa -out privateckey_client.pem 2048 ----> Creates a private ssh key and stores it in the current dir with the given name
 		#: openssl rsa -in privatekey_server.pem -pubout -out publickey_server.pem ----> Creates the corresponding public key out of the private one
-		#: self.__public_key = load_public_key('publickey_server.pem')
-		self.__public_key = load_public_key('/home/pi/automobile/src/output/src/environmentalserver/publickey_server_test.pem')
-		#: self.__private_key = load_private_key('privateckey_client.pem')
-		self.__private_key = load_private_key('/home/pi/automobile/src/output/src/environmentalserver/privatekey_client_test.pem')
+
+		#: Before the competition, instruction of where to send your public key will be given.
+		#: To test the functionality, save your public key under test/environmentalSERVER/keys your own key and change the name with the id you're trying to connect with (id_publickey.pem)
+		#: The given example connects with the id 120 and the same key is saved with "120_publickey.pem"
+
+		self.__public_key = load_public_key(serverpublickey)
+
+		self.__private_key = load_private_key(clientprivatekey)
 
 	def ID(self):
 		return self.__carId
@@ -72,21 +77,17 @@ class ServerSubscriber:
 			sock.settimeout(2.0)
 			
 			# Authentication of client
-			if(sys.version_info[0] < 3 ): #Compatible with python 2 or 3
-				msg = bytes("{}".format(self.__carId)).encode('utf-8')
-				signature = sign_data(self.__private_key, msg)
-			else:
-				msg_ = "{}".format(self.__carId)
-				msg = msg_.encode('utf-8')
-				signature = sign_data(self.__private_key, msg_)
+			msg = "{}".format(self.__carId).encode('utf-8')
+			signature = sign_data(self.__private_key, msg)
 			#sending plain message to server
 			sock.sendall(msg)
+			time.sleep(0.1)
 			# sending encripted car id to server
 			sock.sendall(signature)
 			
 			# Authentication of server
 			# receiving plain message from the server
-			msg = sock.recv(4096).decode('utf-8')
+			msg = sock.recv(4096)
 			
 			# receiving signature from the server
 			signature = sock.recv(4096)
@@ -107,7 +108,6 @@ class ServerSubscriber:
 			print("Connected to ",self.__server_data.serverip)
 			self.__server_data.socket = sock
 			self.__server_data.is_new_server = False
-			time.sleep(1)
 		
 		except Exception as e:
 			print("Failed to connect on server with error: " + str(e))

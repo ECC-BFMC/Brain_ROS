@@ -28,10 +28,8 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 
-import server_data
-import server_listener
-import server_subscriber
-import position_listener
+from multiprocessing import Pipe
+from locsys import LocalisationSystem
 
 import time
 
@@ -41,32 +39,13 @@ from utils.msg import localisation
 
 class gpstrackerNODE():
     
-    def __init__(self, ID):
-        """ GpsTracker targets to connect on the server and to receive the messages, which incorporates 
-        the coordinate of the robot on the race track. It has two main state, the setup state and the listening state. 
-        In the setup state, it creates the connection with server. It's receiving  the messages from the server in the listening
-        state. 
-
-        It's a thread, so can be running parallel with other threads. You can access to the received parameters via 'coor' function.
-
-        Examples
-        --------
-        Here you can find a simple example, where the GpsTracker are running 10 second:
-            | gpstracker = GpsTracker()
-            | gpstracker.start()
-            | time.sleep(10)
-            | gpstracker.stop()
-            | gpstracker.join()
-
-        """
-        #: serverData object with server parameters
-        self.__server_data = server_data.ServerData()
-        #: discover the parameters of server
-        self.__server_listener = server_listener.ServerListener(self.__server_data)
-        #: connect to the server
-        self.__subscriber = server_subscriber.ServerSubscriber(self.__server_data,ID)
-        #: receive and decode the messages from the server
-        self.__position_listener = position_listener.PositionListener(self.__server_data)
+    def __init__(self):
+        beacon = 12345
+        id = 4
+        serverpublickey = 'publickey_server_test.pem'
+        
+        self.gpsStR, gpsStS = Pipe(duplex = False)
+        self.LocalisationSystem = LocalisationSystem(id, beacon, serverpublickey, gpsStS)
         
         rospy.init_node('gpstrackerNODE', anonymous=False)
         
@@ -77,6 +56,7 @@ class gpstrackerNODE():
     #================================ RUN ========================================
     def run(self):
         rospy.loginfo("starting gpstrackerNODE")
+        self.LocalisationSystem.start()
         time.sleep(5)
         self._getting()
     
@@ -84,38 +64,25 @@ class gpstrackerNODE():
     def _getting(self):
         while not rospy.is_shutdown():
             try:
-                self.setup()
-                loc_data = self.listen()
-                if loc_data is not None:
-                    loc=localisation()
-                    loc.timestamp = loc_data['timestamp']
-                    loc.posA = loc_data['coor'][0]['real']
-                    loc.posB = loc_data['coor'][0]['imag']
-                    loc.rotA = loc_data['coor'][1]['real']
-                    loc.rotB = loc_data['coor'][1]['imag']
-                    
-                    self.GPS_publisher.publish(loc)
-            except Exception as e:
-                pass
-            
+                coora = self.gpsStR.recv()
 
-    def setup(self):
-        """Actualize the server's data and create a new socket with it.
-        """
-        # discover the parameters of server
-        if self.__server_data.socket == None:
+                loc=localisation()
+                
+                loc.timestamp = coora['timestamp']
+                loc.posA = coora['coor'][0].real
+                loc.posB = coora['coor'][0].imag
+                loc.rotA = coora['coor'][1].real
+                loc.rotB = coora['coor'][1].imag
+                    
+                self.GPS_publisher.publish(loc)
+            except KeyboardInterrupt:
+                break
+
+        self.LocalisationSystem.stop()
+        self.LocalisationSystem.join()
             
-            self.__server_listener.find()
-            
-            if self.__server_data.is_new_server:
-                # connect to the server 
-                self.__subscriber.subscribe()
-        
-    def listen(self):
-        """ Listening the coordination of robot
-        """
-        return self.__position_listener.listen()
 
 if __name__ == '__main__':
-    gptrkNODE = gpstrackerNODE(4)
+    gptrkNODE = gpstrackerNODE()
+
     gptrkNODE.run()

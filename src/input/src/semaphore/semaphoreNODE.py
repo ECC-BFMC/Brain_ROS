@@ -40,10 +40,7 @@ class semaphoreNODE():
         """listener class. 
         
         Class used for running port listener algorithm 
-        """        
-        #: Semaphore colors
-        self.colors = ['red','yellow','green']
-        
+        """                
         rospy.init_node('semaphoreNODE', anonymous=False)
         
         # BNO publisher object

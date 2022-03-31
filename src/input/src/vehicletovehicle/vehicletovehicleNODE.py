@@ -72,7 +72,6 @@ class vehicletovehicleNODE():
                 # Decode received data
                 data = data.decode("utf-8") 
                 data = json.loads(data)
-                veh = vehicles()
                 
                 ID = int(data['id'])
                 timestamp = float(data['timestamp'])
@@ -89,8 +88,7 @@ class vehicletovehicleNODE():
                 self.Vehicles_publisher(veh)
                 
             except Exception as e:
-                if str(e) !="timed out":
-                    print("Receiving data failed with error: " + str(e))
+                print("Receiving data failed with error: " + str(e))
 
 if __name__ == "__main__":
     vehNOD = vehicletovehicleNODE()

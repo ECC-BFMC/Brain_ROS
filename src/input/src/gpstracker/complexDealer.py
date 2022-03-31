@@ -28,6 +28,13 @@
 
 import json
 
+class ComplexEncoder(json.JSONEncoder):
+    def default(self, z):
+        if isinstance(z, complex):
+            return {'type':'complex', 'real':z.real, 'imag':z.imag}
+        else:
+            return super().default(z)
+
 class ComplexDecoder(json.JSONDecoder):
 	""" Json decoder for complex numbers. The decodeable message consists of two float number and a type marking, like below:
 			{'type':'complex','real':1.0,'imag':1/0}

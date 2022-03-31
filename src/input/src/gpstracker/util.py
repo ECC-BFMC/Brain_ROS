@@ -33,9 +33,6 @@ from cryptography.hazmat.primitives.serialization import load_pem_private_key, l
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-import os
-import sys
-sys.path.insert(0,'.')
 
 
 def gen_key():
@@ -162,7 +159,7 @@ def verify_data(public_key,plain_text,signature):
     try:
         public_key.verify(
             signature=signature,
-            data=plain_text.encode('utf-8'),
+            data=plain_text,
             padding=padding.PSS(
                 mgf=padding.MGF1(hashes.MD5()),
                 salt_length=padding.PSS.MAX_LENGTH

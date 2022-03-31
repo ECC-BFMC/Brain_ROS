@@ -36,7 +36,7 @@
 */
 
 SerialComManager::SerialComManager(BaseResponseHandler& f_responseHandler)
-                                :SerialComManager(230400,"/dev/ttyACM0",f_responseHandler)
+                                :SerialComManager(19200,"/dev/ttyACM0",f_responseHandler)
 {
 }
 

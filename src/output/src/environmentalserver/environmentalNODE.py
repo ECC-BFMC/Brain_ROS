@@ -28,13 +28,10 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 
-import server_data
-import server_listener
-import server_subscriber
-import environmental_streamer
+from multiprocessing import Pipe
+from environmental import EnvironmentalHandler
 
 import time
-import random
 
 import rospy
 
@@ -42,25 +39,16 @@ from utils.msg import environmental
 
 class environmentalNODE():
     
-    def __init__(self, ID = 120):
-        """ EnvironmentalHandler targets to connect on the server and to send messages, which incorporates 
-        the coordinate of the encountered obstacles on the race track. It has two main state, the setup state and the streaming state. 
-        In the setup state, it creates the connection with server. It's sending the messages to the server in the streaming
-        state. 
-
-        It's a thread, so can be run parallel with other threads. You can write the coordinates and the id of the encountered obstacle 
-        and the script will send it.
-
-        """
-        #: serverData object with server parameters
-        self.__server_data = server_data.ServerData()
-        #: discover the parameters of server
-        self.__server_listener = server_listener.ServerListener(self.__server_data)
-        #: connect to the server
-        self.__subscriber = server_subscriber.ServerSubscriber(self.__server_data,ID)
-        #: receive and decode the messages from the server
-        self.__environmental_streamer = environmental_streamer.EnvironmentalStreamer(self.__server_data)
+    def __init__(self):
+        beacon = 23456
+        id = 120
+        serverpublickey = 'publickey_server_test.pem'
+        clientprivatekey = 'privatekey_client_test.pem'
         
+        gpsStR, self.gpsStS = Pipe(duplex = False)
+
+        self.envhandler = EnvironmentalHandler(id, beacon, serverpublickey, gpsStR, clientprivatekey)
+    
         rospy.init_node('environmentalNODE', anonymous=False)
         
         # Environmental subscriber object
@@ -72,31 +60,17 @@ class environmentalNODE():
         """Apply the initializing methods and start subscriber.
         """
         rospy.loginfo("starting environmentalNODE")
-        
-        rospy.spin()
-
-    def setup(self):
-        """Actualize the server's data and create a new socket with it.
-        """
-        # Running while it has a valid connection with the server
-        if (self.__server_data.socket == None):
-            # discover the parameters of server
-            self.__server_listener.find()
-            if self.__server_data.is_new_server:
-                # connect to the server 
-                self.__subscriber.subscribe()
-        
+        self.envhandler.start()
+        time.sleep(5)
+        rospy.spin()        
 
     def _send(self, msg):
-        try:
-            self.__environmental_streamer.sent = False
-            while self.__environmental_streamer.sent == False and not rospy.is_shutdown():
-                self.setup()
-                self.__environmental_streamer.stream(msg.obstacle_id, msg.x, msg.y)
-                print(msg)
-        except:
-            pass
+        a = {"obstacle_id": msg.obstacle_id, "x": msg.x, "y": msg.y}
+        self.gpsStS.send(a)
 
 if __name__ == '__main__':
     envNOD = environmentalNODE()
     envNOD.run()
+
+    envNOD.envhandler.stop()
+    envNOD.envhandler.join()
