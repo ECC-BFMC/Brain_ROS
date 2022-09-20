@@ -33,7 +33,7 @@ from cryptography.hazmat.primitives.serialization import load_pem_private_key, l
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-
+import os
 
 def gen_key():
     """Generate new private key
@@ -92,6 +92,10 @@ def load_private_key(filename):
     -------
         private key
     """
+        
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(dirname, filename)
+    
     with open(filename, 'rb') as pem_in:
         pemlines = pem_in.read()
     private_key = load_pem_private_key(pemlines, None, default_backend())
@@ -109,6 +113,10 @@ def load_public_key(filename):
     -------
         public key
     """
+        
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(dirname, filename)
+    
     with open(filename, 'rb') as pem_in:
         pemlines = pem_in.read()
     public_key = load_pem_public_key(pemlines, default_backend())
