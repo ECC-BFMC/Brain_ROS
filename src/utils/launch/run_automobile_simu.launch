@@ -1,0 +1,5 @@
+<launch>
+    
+    <node pkg="input" type="cameraSpooferNODE.py" 		name="cameraDealerNODE"  		output="screen"/>
+    <!--node pkg="output" type="serialDealerNODE.py" 		name="serialDealerNODE"  		output="screen"/-->
+</launch>
