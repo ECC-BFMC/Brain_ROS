@@ -31,6 +31,8 @@
 import io
 import numpy as np
 import time
+import glob
+import cv2
 
 import rospy
 
@@ -45,7 +47,7 @@ class cameraSpooferNODE():
         # params
         self.videoSize = (640,480)
         
-        self.videoDir = "path/to/videos/directory"
+        self.videoDir = "/media/sf_bfmc/records"
         self.videos = self.open_files(self.videoDir, ext = ext)
         
         rospy.init_node('cameraSpooferNODE', anonymous=False)
