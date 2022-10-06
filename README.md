@@ -36,41 +36,41 @@ iv.	You can connect to the RPi IP from any terminal with the command ssh pi@192.
 
 
 ## 4. Add the ROS Debian repo to the OS
-sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu buster main" > /etc/apt/sources.list.d/ros-noetic.list'
+		sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu buster main" > /etc/apt/sources.list.d/ros-noetic.list'
 
 
 ## 5. Add official ROS key
-sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+		sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 
 # 6. Pull all meta info from ROS noetic packages
-sudo apt-get update && sudo apt-get upgrade
+		sudo apt-get update && sudo apt-get upgrade
 
 ## 7. Install build dependencies
-sudo apt-get install -y python-rosdep python-rosinstall-generator python-wstool python-rosinstall build-essential cmake
+		sudo apt-get install -y python-rosdep python-rosinstall-generator python-wstool python-rosinstall build-essential cmake
 
 ## 8. Install pip3
-sudo apt install python3-pip
+		sudo apt install python3-pip
 
 ## 9. Install opencv:
-sudo apt install libopencv-dev python3-opencv
+		sudo apt install libopencv-dev python3-opencv
 
 ## 10. Setup ROS dependency sources/repos
-sudo rosdep init
-rosdep update
+		sudo rosdep init
+		rosdep update
 
 
 ## 11. Fetch and install ROS dependencies
-mkdir -p ~/ros_catkin_ws
-cd ~/ros_catkin_ws
+		mkdir -p ~/ros_catkin_ws
+		cd ~/ros_catkin_ws
 
 Lite version:
-rosinstall_generator ros_comm sensor_msgs cv_bridge --rosdistro noetic --deps --wet-only --tar > noetic-ros_comm-wet.rosinstall 
-wstool init src noetic-ros_comm-wet.rosinstall
+		rosinstall_generator ros_comm sensor_msgs cv_bridge --rosdistro noetic --deps --wet-only --tar > noetic-ros_comm-wet.rosinstall 
+		wstool init src noetic-ros_comm-wet.rosinstall
 
 
 Desktop version
-rosinstall_generator desktop --rosdistro noetic --deps --wet-only --tar > noetic-desktop-wet.rosinstall 
-wstool init src noetic-desktop-wet.rosinstall
+		rosinstall_generator desktop --rosdistro noetic --deps --wet-only --tar > noetic-desktop-wet.rosinstall 
+		wstool init src noetic-desktop-wet.rosinstall
 
 
 
