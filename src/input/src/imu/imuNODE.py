@@ -30,7 +30,6 @@
 
 import sys
 sys.path.append('.')
-import RTIMU
 import os.path
 import time
 import math
@@ -39,13 +38,24 @@ import rospy
 
 from utils.msg import IMU
 
+sensorType = "BNO055"
+
+if sensorType == "BNO055":
+    import RTIMU
+elif sensorType == "MPU6050":
+    from mpu6050 import mpu6050
+
 class imuNODE():
     def __init__(self): 
-        self.SETTINGS_FILE = "RTIMULib"
-        print("Using settings file " + self.SETTINGS_FILE + ".ini")
-        if not os.path.exists(self.SETTINGS_FILE + ".ini"):
-            print("Settings file does not exist, will be created")
-        self.s = RTIMU.Settings(self.SETTINGS_FILE)
+        if sensorType == "BNO055":
+            import RTIMU
+            self.SETTINGS_FILE = "RTIMULib"
+            print("Using settings file " + self.SETTINGS_FILE + ".ini")
+            if not os.path.exists(self.SETTINGS_FILE + ".ini"):
+                print("Settings file does not exist, will be created")
+            self.s = RTIMU.Settings(self.SETTINGS_FILE)
+        else:
+            from mpu6050 import mpu6050
         
         rospy.init_node('imuNODE', anonymous=False)
         
@@ -60,36 +70,51 @@ class imuNODE():
     
     #================================ INIT IMU ========================================
     def _initIMU(self):
-        self.imu = RTIMU.RTIMU(self.s)
-        
-        if (not self.imu.IMUInit()):
-            sys.exit(1)
-        print("IMU Name: " + self.imu.IMUName())
-        self.imu.setSlerpPower(0.02)
-        self.imu.setGyroEnable(True)
-        self.imu.setAccelEnable(True)
-        self.imu.setCompassEnable(True)
-
-        self.poll_interval = self.imu.IMUGetPollInterval()
+        if sensorType == "BNO055":
+            self.imu = RTIMU.RTIMU(self.s)
+            
+            if (not self.imu.IMUInit()):
+                sys.exit(1)
+            print("IMU Name: " + self.imu.IMUName())
+            self.imu.setSlerpPower(0.02)
+            self.imu.setGyroEnable(True)
+            self.imu.setAccelEnable(True)
+            self.imu.setCompassEnable(True)
+            self.poll_interval = self.imu.IMUGetPollInterval()
+        else:
+            self.imu = mpu6050(0x68)
+            self.poll_interval = 100
 
     #================================ GETTING ========================================
     def _getting(self):
         while not rospy.is_shutdown():
-            if self.imu.IMURead():
-                data = self.imu.getIMUData()
-                fusionPose = data["fusionPose"]
-                accel = data["accel"]
-                imudata = IMU()
-                imudata.roll   =  math.degrees(fusionPose[0])
-                imudata.pitch  =  math.degrees(fusionPose[1])
-                imudata.yaw    =  math.degrees(fusionPose[2])
-                imudata.accelx =  accel[0]
-                imudata.accely =  accel[1]
-                imudata.accelz =  accel[2]
+            imudata = IMU()
+            if sensorType == "BNO055":
+                if self.imu.IMURead():
+                    data = self.imu.getIMUData()
+                    fusionPose = data["fusionPose"]
+                    accel = data["accel"]
+                    
+                    imudata.roll   =  math.degrees(fusionPose[0])
+                    imudata.pitch  =  math.degrees(fusionPose[1])
+                    imudata.yaw    =  math.degrees(fusionPose[2])
+                    imudata.accelx =  accel[0]
+                    imudata.accely =  accel[1]
+                    imudata.accelz =  accel[2]
+            else:
+                data = self.imu.get_accel_data()
+                dataa = self.imu.get_gyro_data()
+
+                imudata.accelx = data["x"]
+                imudata.accely = data["y"]
+                imudata.accelz = data["z"]
                 
-                self.BNO_publisher.publish(imudata)
-                
-                time.sleep(self.poll_interval*1.0/1000.0)
+                imudata.roll  =  math.degrees(dataa["x"])
+                imudata.pitch =  math.degrees(dataa["y"])
+                imudata.yaw   =  math.degrees(dataa["z"])
+            self.BNO_publisher.publish(imudata)
+            
+            time.sleep(self.poll_interval*1.0/1000.0)
         
 if __name__ == "__main__":
     imuNod = imuNODE()
