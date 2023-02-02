@@ -32,6 +32,8 @@ import socket
 
 import rospy
 
+import time
+
 from std_msgs.msg import String
 
 class serialDealerNODE():
@@ -41,9 +43,9 @@ class serialDealerNODE():
         
         rospy.init_node('serialDealerNODE', anonymous=False)
         
-        # Command publisher object
-        self.command_publisher = rospy.Publisher("/automobile/command", String, queue_size=1)
-        
+        # Command pubSSlisher object
+        #self.command_publisher = rospy.Publisher("/automobile/command", String, queue_size=1)
+        self.command_publisher = rospy.Publisher("/automobile/perception",String, queue_size=1)
     
      # ===================================== RUN ==========================================
     def run(self):
@@ -58,7 +60,7 @@ class serialDealerNODE():
         """Initialize the communication socket server.
         """
         self.port       =   12244
-        self.serverIp   =   '0.0.0.0'
+        self.serverIp   =   '192.168.0.107'
         
         self.server_socket = socket.socket(
                                     family  = socket.AF_INET, 
@@ -73,10 +75,13 @@ class serialDealerNODE():
         
         while not rospy.is_shutdown():
             try:
+                #print("hello")
                 bts, addr = self.server_socket.recvfrom(1024)
-
+                #print(bts)
                 command   =  bts.decode()
+                #command = String("hello")
                 self.command_publisher.publish(command)
+                #stime.sleep(2)
             except:
                 pass
         else:
