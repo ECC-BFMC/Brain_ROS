@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2019, Bosch Engineering Center Cluj and BFMC organizers
 # All rights reserved.
 
@@ -26,25 +28,47 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 
+import serial
 import json
+import time
+import rospy
 
-class ComplexEncoder(json.JSONEncoder):
-    def default(self, z):
-        if isinstance(z, complex):
-            return {'type':'complex', 'real':z.real, 'imag':z.imag}
-        else:
-            return super().default(z)
-
-class ComplexDecoder(json.JSONDecoder):
-	""" Json decoder for complex numbers. The decodeable message consists of two float number and a type marking, like below:
-			{'type':'complex','real':1.0,'imag':1/0}
-		It will return a complex number object.
-	"""
-	def __init__(self,*args,**kwargs):
-		super(ComplexDecoder,self).__init__(object_hook=self.object_hook,*args,**kwargs)
-
-	def object_hook(self,dct):
-		# Checking the parameters of dictionary. 
-		if 'type' in dct and dct['type'] == 'complex' :	
-			return complex(dct['real'],dct['imag'])
-		return dct
+from std_msgs.msg      import String
+from utils.srv        import subscribing, subscribingResponse
+from utils.msg         import IMU
+class IMUNode():
+    def __init__(self):
+              
+        rospy.init_node('perceptionNODE', anonymous=False)
+        
+        self.command_subscriber = rospy.Subscriber("/automobile/imu", IMU, self._write)      
+    
+     # ===================================== RUN ==========================================
+    def run(self):
+        """Apply the initializing methods and start the threads
+        """
+        rospy.loginfo("starting IMUNode")
+        self._read()    
+        
+    # ===================================== READ ==========================================
+    def _read(self):
+        """ It's represent the reading activity on the the serial.
+        """
+        while not rospy.is_shutdown():
+            try:
+                print("hello from perception, IMU")
+                time.sleep(2)
+                 
+            except UnicodeDecodeError:
+                pass     
+    # ===================================== WRITE ==========================================
+    def _write(self, msg):
+        """ Represents the writing activity on the the serial.
+        """
+        #command = json.loads(msg.data)
+        #command = msg.data
+        print(msg.roll)
+            
+if __name__ == "__main__":
+    perNod = IMUNode()
+    perNod.run()
