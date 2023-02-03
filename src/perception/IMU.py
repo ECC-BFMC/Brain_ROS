@@ -35,19 +35,19 @@ import rospy
 
 from std_msgs.msg      import String
 from utils.srv        import subscribing, subscribingResponse
-
-class perceptionNODE():
+from utils.msg         import IMU
+class IMUNode():
     def __init__(self):
               
         rospy.init_node('perceptionNODE', anonymous=False)
         
-        self.command_subscriber = rospy.Subscriber("/automobile/perception", String, self._write)      
+        self.command_subscriber = rospy.Subscriber("/automobile/imu", IMU, self._write)      
     
      # ===================================== RUN ==========================================
     def run(self):
         """Apply the initializing methods and start the threads
         """
-        rospy.loginfo("starting serialNODE")
+        rospy.loginfo("starting IMUNode")
         self._read()    
         
     # ===================================== READ ==========================================
@@ -56,7 +56,7 @@ class perceptionNODE():
         """
         while not rospy.is_shutdown():
             try:
-                print("hello from perception")
+                print("hello from perception, IMU")
                 time.sleep(2)
                  
             except UnicodeDecodeError:
@@ -65,10 +65,10 @@ class perceptionNODE():
     def _write(self, msg):
         """ Represents the writing activity on the the serial.
         """
-        command = json.loads(msg.data)
+        #command = json.loads(msg.data)
         #command = msg.data
-        print(command)
+        print(msg.roll)
             
 if __name__ == "__main__":
-    perNod = perceptionNODE()
+    perNod = IMUNode()
     perNod.run()
