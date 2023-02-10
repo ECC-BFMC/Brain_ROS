@@ -41,12 +41,11 @@ class gpstrackerNODE():
     
     def __init__(self):
         beacon = 12345
-        id = 4
+        id = 1
         serverpublickey = 'publickey_server_test.pem'
         
         self.gpsStR, gpsStS = Pipe(duplex = False)
         self.LocalisationSystem = LocalisationSystem(id, beacon, serverpublickey, gpsStS)
-        
         rospy.init_node('gpstrackerNODE', anonymous=False)
         
         # BNO publisher object
@@ -64,17 +63,16 @@ class gpstrackerNODE():
     def _getting(self):
         while not rospy.is_shutdown():
             try:
-                coora = self.gpsStR.recv()
+                if self.gpsStR.poll():
+                    coora = self.gpsStR.recv()
 
-                loc=localisation()
-                
-                loc.timestamp = coora['timestamp']
-                loc.posA = coora['coor'][0].real
-                loc.posB = coora['coor'][0].imag
-                loc.rotA = coora['coor'][1].real
-                loc.rotB = coora['coor'][1].imag
+                    loc=localisation()
                     
-                self.GPS_publisher.publish(loc)
+                    loc.timestamp = coora['timestamp']
+                    loc.posA = coora['pos'].real
+                    loc.posB = coora['pos'].imag
+                        
+                    self.GPS_publisher.publish(loc)
             except KeyboardInterrupt:
                 break
 

@@ -26,11 +26,14 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 
+from multiprocessing import Pipe
 from threading import Thread
 from server_data import ServerData
 from server_listener import ServerListener
 from server_subscriber import ServerSubscriber
 from position_listener import PositionListener
+
+import time
 
 class LocalisationSystem(Thread):
     
@@ -83,4 +86,25 @@ class LocalisationSystem(Thread):
         self.__server_listener.stop()
         self.__position_listener.stop()
 
+if __name__ == '__main__':
+    beacon = 12345
+    id = 1
+    serverpublickey = 'publickey_server_test.pem'
+    
+    gpsStR, gpsStS = Pipe(duplex = False)
+    
+    LocalisationSystem = LocalisationSystem(id, beacon, serverpublickey, gpsStS)
+    LocalisationSystem.start()  
+    
+    time.sleep(5)
+    while True:
+        try:
+            if gpsStR.poll():
+                coora = gpsStR.recv()
+                print(coora['timestamp'], coora['pos'].real, coora['pos'].imag)
+        except KeyboardInterrupt:
+            break
+        
+    LocalisationSystem.stop()
 
+    LocalisationSystem.join()

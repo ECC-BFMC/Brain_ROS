@@ -36,6 +36,7 @@ import rospy
 
 from cv_bridge       import CvBridge
 from sensor_msgs.msg import Image
+import glob
 
 class cameraSpooferNODE():
     def __init__(self, ext = '.h264'):
